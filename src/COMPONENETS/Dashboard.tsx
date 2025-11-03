@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import  { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Plus, Search } from "lucide-react";
@@ -11,40 +11,24 @@ import {
 
 const API_BASE_URL = "https://backend-noteap.onrender.com";
 
-// ✅ Note model
-interface Note {
-  _id?: string;
-  title: string;
-  content: string;
-  eventDate?: string;
-  remind?: boolean;
-}
-
-// ✅ User model
-interface User {
-  name?: string;
-  email?: string;
-}
-
 const Dashboard = () => {
-  const [user, setUser] = useState<User | null>(null);
-  const [notes, setNotes] = useState<Note[]>([]);
-  const [filteredNotes, setFilteredNotes] = useState<Note[]>([]);
+  const [user, setUser] = useState(null);
+  const [notes, setNotes] = useState([]);
+  const [filteredNotes, setFilteredNotes] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedNote, setSelectedNote] = useState<Note | null>(null);
+  const [selectedNote, setSelectedNote] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [newNote, setNewNote] = useState<Note>({
+  const [newNote, setNewNote] = useState({
     title: "",
     content: "",
     eventDate: "",
     remind: false,
   });
   const [loading, setLoading] = useState(false);
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const navigate = useNavigate();
 
-  // ✅ Axios setup with authorization
+  // ✅ Setup Axios with Authorization
   const axiosInstance = axios.create({ baseURL: API_BASE_URL });
   axiosInstance.interceptors.request.use((config) => {
     const token = localStorage.getItem("token");
@@ -52,7 +36,7 @@ const Dashboard = () => {
     return config;
   });
 
-  // ✅ Load user & notes
+  // ✅ Load user & notes on mount
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -63,6 +47,7 @@ const Dashboard = () => {
     fetchNotes();
   }, [navigate]);
 
+  // ✅ Fetch logged-in user
   async function fetchUser() {
     try {
       const res = await axiosInstance.get("/auth/profile");
@@ -73,15 +58,14 @@ const Dashboard = () => {
     }
   }
 
+  // ✅ Fetch notes
   async function fetchNotes() {
     try {
       setLoading(true);
       const res = await axiosInstance.get("/notes");
-      const data = res.data || [];
-      setNotes(data);
-      setFilteredNotes(data);
-
-      rehydrateReminders(res.data || [], (_, title, body) =>
+      setNotes(res.data || []);
+      setFilteredNotes(res.data || []);
+      rehydrateReminders(res.data || [], (id, title, body) =>
         showLocalNotification(title, body)
       );
     } catch (err) {
@@ -91,16 +75,16 @@ const Dashboard = () => {
     }
   }
 
-  async function handleAddNote(e: React.FormEvent) {
+  // ✅ Add note
+  async function handleAddNote(e) {
     e.preventDefault();
     if (!newNote.title.trim() || !newNote.content.trim()) return;
-
     try {
       setLoading(true);
       const res = await axiosInstance.post("/notes", newNote);
-      const updated = [...notes, res.data];
-      setNotes(updated);
-      setFilteredNotes(updated);
+      const updatedNotes = [...notes, res.data];
+      setNotes(updatedNotes);
+      setFilteredNotes(updatedNotes);
 
       if (res.data.remind && res.data.eventDate) {
         scheduleReminder(
@@ -122,19 +106,21 @@ const Dashboard = () => {
     }
   }
 
+  // ✅ Edit note
   async function handleEditNote() {
-    if (!selectedNote || !selectedNote.title.trim() || !selectedNote.content.trim()) return;
-
+    if (!selectedNote.title.trim() || !selectedNote.content.trim()) return;
     try {
       setLoading(true);
       const res = await axiosInstance.put(`/notes/${selectedNote._id}`, selectedNote);
-      const updated = notes.map((n) => (n._id === selectedNote._id ? res.data : n));
+      const updated = notes.map((n) =>
+        n._id === selectedNote._id ? res.data : n
+      );
       setNotes(updated);
       setFilteredNotes(updated);
       setIsEditing(false);
       setSelectedNote(res.data);
 
-      cancelReminder(selectedNote._id!);
+      cancelReminder(selectedNote._id);
       if (res.data.remind && res.data.eventDate) {
         scheduleReminder(
           res.data._id,
@@ -152,7 +138,8 @@ const Dashboard = () => {
     }
   }
 
-  async function handleDeleteNote(id: string) {
+  // ✅ Delete note
+  async function handleDeleteNote(id) {
     if (!window.confirm("Are you sure you want to delete this note?")) return;
     try {
       await axiosInstance.delete(`/notes/${id}`);
@@ -167,7 +154,7 @@ const Dashboard = () => {
     }
   }
 
-  // ✅ Search filter
+  // ✅ Filter notes on search
   useEffect(() => {
     if (!searchTerm.trim()) {
       setFilteredNotes(notes);
@@ -187,13 +174,14 @@ const Dashboard = () => {
     navigate("/login");
   }
 
-  // ✅ Notification (fixed: removed `renotify`)
-  function showLocalNotification(title: string, body: string) {
+  // ✅ Notifications
+  function showLocalNotification(title, body) {
     if (Notification.permission === "granted" && "serviceWorker" in navigator) {
       navigator.serviceWorker.ready.then((reg) => {
         reg.showNotification(title, {
           body,
           tag: "noteapp-reminder",
+          renotify: true,
         });
       });
     } else {
@@ -201,30 +189,41 @@ const Dashboard = () => {
     }
   }
 
-  const notifyHandler = (noteId: string, title: string, body: string) => {
+  const notifyHandler = (noteId, title, body) => {
     console.log("🔔 Reminder triggered for:", noteId);
     showLocalNotification(title, body);
   };
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
-  // ✅ JSX
+
   return (
     <div className="dashboard-container">
-      {/* Header */}
-      <header className="dashboard-header">
-        <h2>Welcome back, {user ? user.name || user.email : "User"} 👋</h2>
-        <div className={`search-bar ${searchTerm || isSearchOpen ? "open" : ""}`}>
-          <Search
-            className="search-icon"
-            onClick={() => setIsSearchOpen(!isSearchOpen)}
-          />
-          <input
-            type="text"
-            placeholder="Search your notes..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </div>
-      </header>
+      
+<header className="dashboard-header">
+  <h2>Welcome back, {user ? user.name || user.email : "User"} 👋</h2>
+
+  <div
+    className={`search-bar ${searchTerm || isSearchOpen ? "open" : ""}`}
+  >
+    <Search
+      className="search-icon"
+      onClick={() => setIsSearchOpen(!isSearchOpen)}
+    />
+    <input
+      type="text"
+      placeholder="Search your notes..."
+      value={searchTerm}
+      onChange={(e) => setSearchTerm(e.target.value)}
+    />
+  </div>
+</header>
+
+
+
+
+
+
+
 
       {/* Notes grid */}
       <div className="notes-grid">
@@ -276,21 +275,28 @@ const Dashboard = () => {
                 <p>{selectedNote.content}</p>
                 {selectedNote.eventDate && (
                   <p className="note-date">
-                    Event Date: {new Date(selectedNote.eventDate).toLocaleString()}
+                    Event Date:{" "}
+                    {new Date(selectedNote.eventDate).toLocaleString()}
                   </p>
                 )}
                 {selectedNote.remind && <p>🔔 Reminder Enabled</p>}
                 <div className="modal-actions">
-                  <button className="btn primary" onClick={() => setIsEditing(true)}>
+                  <button
+                    className="btn primary"
+                    onClick={() => setIsEditing(true)}
+                  >
                     Edit
                   </button>
                   <button
                     className="btn danger"
-                    onClick={() => handleDeleteNote(selectedNote._id!)}
+                    onClick={() => handleDeleteNote(selectedNote._id)}
                   >
                     Delete
                   </button>
-                  <button className="btn" onClick={() => setSelectedNote(null)}>
+                  <button
+                    className="btn"
+                    onClick={() => setSelectedNote(null)}
+                  >
                     Close
                   </button>
                 </div>
@@ -308,13 +314,20 @@ const Dashboard = () => {
                 <textarea
                   value={selectedNote.content}
                   onChange={(e) =>
-                    setSelectedNote({ ...selectedNote, content: e.target.value })
+                    setSelectedNote({
+                      ...selectedNote,
+                      content: e.target.value,
+                    })
                   }
                 />
                 <label>Event Date</label>
                 <input
                   type="datetime-local"
-                  value={selectedNote.eventDate?.slice(0, 16) || ""}
+                  value={
+                    selectedNote.eventDate
+                      ? selectedNote.eventDate.slice(0, 16)
+                      : ""
+                  }
                   onChange={(e) =>
                     setSelectedNote({
                       ...selectedNote,
@@ -325,7 +338,7 @@ const Dashboard = () => {
                 <label className="remind-row">
                   <input
                     type="checkbox"
-                    checked={selectedNote.remind || false}
+                    checked={selectedNote.remind}
                     onChange={(e) =>
                       setSelectedNote({
                         ...selectedNote,
@@ -387,14 +400,18 @@ const Dashboard = () => {
               <label className="remind-row">
                 <input
                   type="checkbox"
-                  checked={newNote.remind || false}
+                  checked={newNote.remind}
                   onChange={(e) =>
                     setNewNote({ ...newNote, remind: e.target.checked })
                   }
                 />
                 &nbsp;Remind me at event time
               </label>
-              <button type="submit" className="btn primary" disabled={loading}>
+              <button
+                type="submit"
+                className="btn primary"
+                disabled={loading}
+              >
                 {loading ? "Saving..." : "Save Note"}
               </button>
             </form>
