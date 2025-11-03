@@ -80,9 +80,12 @@ const Dashboard = () => {
       const data = res.data || [];
       setNotes(data);
       setFilteredNotes(data);
-      rehydrateReminders(data, (id, title, body) =>
-        showLocalNotification(title, body)
-      );
+      
+
+      rehydrateReminders(res.data || [], (_, title, body) =>
+  showLocalNotification(title, body)
+);
+
     } catch (err) {
       console.error("❌ Notes fetch failed", err);
     } finally {
