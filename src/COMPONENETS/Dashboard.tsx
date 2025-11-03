@@ -80,12 +80,10 @@ const Dashboard = () => {
       const data = res.data || [];
       setNotes(data);
       setFilteredNotes(data);
-      
 
       rehydrateReminders(res.data || [], (_, title, body) =>
-  showLocalNotification(title, body)
-);
-
+        showLocalNotification(title, body)
+      );
     } catch (err) {
       console.error("❌ Notes fetch failed", err);
     } finally {
@@ -189,14 +187,13 @@ const Dashboard = () => {
     navigate("/login");
   }
 
-  // ✅ Notification
+  // ✅ Notification (fixed: removed `renotify`)
   function showLocalNotification(title: string, body: string) {
     if (Notification.permission === "granted" && "serviceWorker" in navigator) {
       navigator.serviceWorker.ready.then((reg) => {
         reg.showNotification(title, {
           body,
           tag: "noteapp-reminder",
-          renotify: true,
         });
       });
     } else {
