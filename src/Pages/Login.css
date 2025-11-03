@@ -1,0 +1,174 @@
+/* ============================= */
+/*     MOBILE-FIRST BASE STYLE   */
+/* ============================= */
+
+/* Container */
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: linear-gradient(to right, #5b5f66, #eff1f1);
+  font-family: "Poppins", sans-serif;
+  padding: 1rem;
+  box-sizing: border-box;
+}
+
+/* Login Form Card */
+.login-form {
+  background-color: #faf6f6;
+  padding: 2rem 1.2rem;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  width: 100%;
+  max-width: 360px;
+  text-align: center;
+}
+
+/* Heading */
+.login-form h2 {
+  margin-bottom: 1.2rem;
+  color: #333333;
+  font-size: 1.5rem;
+}
+
+/* Form Group */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+  text-align: left;
+}
+
+.form-group label {
+  font-weight: 500;
+  margin-bottom: 0.4rem;
+  color: #444;
+}
+
+/* Inputs */
+.form-group input {
+  width: 100%;
+  padding: 0.8rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #6c63ff;
+  box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.2);
+}
+
+/* Error Message */
+.error-msg {
+  color: #e74c3c;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+/* Button */
+.login-btn {
+  background-color: #6c63ff;
+  color: white;
+  padding: 0.8rem;
+  width: 80%;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.login-btn:hover:not(:disabled) {
+  background-color: #5a54e3;
+}
+
+.login-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Redirect Text */
+.redirect-text {
+  margin-top: 1rem;
+  color: #555;
+  font-size: 0.9rem;
+}
+
+.link-text {
+  color: #6c63ff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.link-text:hover {
+  text-decoration: underline;
+}
+
+/* ============================= */
+/*     RESPONSIVE BREAKPOINTS    */
+/* ============================= */
+
+/* Tablets (≥ 481px) */
+@media (min-width: 481px) {
+  .login-form {
+    padding: 2.5rem;
+    border-radius: 14px;
+    max-width: 420px;
+  }
+
+  .login-form h2 {
+    font-size: 1.7rem;
+  }
+
+  .form-group input {
+    padding: 0.9rem;
+    font-size: 1rem;
+  }
+
+  .login-btn {
+    width: 75%;
+    padding: 0.9rem;
+    font-size: 1rem;
+  }
+}
+
+/* Small laptops (≥ 768px) */
+@media (min-width: 768px) {
+  .login-form {
+    max-width: 460px;
+    padding: 3rem;
+  }
+
+  .login-form h2 {
+    font-size: 1.9rem;
+  }
+}
+
+/* Desktops (≥ 1024px) */
+@media (min-width: 1024px) {
+  .login-form {
+    max-width: 500px;
+    padding: 3rem 3.5rem;
+  }
+
+  .login-form h2 {
+    font-size: 2rem;
+  }
+}
+
+/* Large screens (≥ 1440px) */
+@media (min-width: 1440px) {
+  .login-container {
+    background: linear-gradient(135deg, #5b5bd6, #4a49c0);
+  }
+
+  .login-form {
+    max-width: 540px;
+  }
+}
