@@ -11,7 +11,7 @@ import {
 
 const API_BASE_URL = "https://backend-noteap.onrender.com";
 
-// ✅ Define Note type for strong typing
+// ✅ Note model
 interface Note {
   _id?: string;
   title: string;
@@ -20,7 +20,7 @@ interface Note {
   remind?: boolean;
 }
 
-// ✅ Define User type
+// ✅ User model
 interface User {
   name?: string;
   email?: string;
@@ -44,7 +44,7 @@ const Dashboard = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const navigate = useNavigate();
 
-  // ✅ Axios setup with auth
+  // ✅ Axios setup with authorization
   const axiosInstance = axios.create({ baseURL: API_BASE_URL });
   axiosInstance.interceptors.request.use((config) => {
     const token = localStorage.getItem("token");
@@ -77,9 +77,10 @@ const Dashboard = () => {
     try {
       setLoading(true);
       const res = await axiosInstance.get("/notes");
-      setNotes(res.data || []);
-      setFilteredNotes(res.data || []);
-      rehydrateReminders(res.data || [], (id, title, body) =>
+      const data = res.data || [];
+      setNotes(data);
+      setFilteredNotes(data);
+      rehydrateReminders(data, (id, title, body) =>
         showLocalNotification(title, body)
       );
     } catch (err) {
@@ -96,9 +97,9 @@ const Dashboard = () => {
     try {
       setLoading(true);
       const res = await axiosInstance.post("/notes", newNote);
-      const updatedNotes = [...notes, res.data];
-      setNotes(updatedNotes);
-      setFilteredNotes(updatedNotes);
+      const updated = [...notes, res.data];
+      setNotes(updated);
+      setFilteredNotes(updated);
 
       if (res.data.remind && res.data.eventDate) {
         scheduleReminder(
@@ -126,9 +127,7 @@ const Dashboard = () => {
     try {
       setLoading(true);
       const res = await axiosInstance.put(`/notes/${selectedNote._id}`, selectedNote);
-      const updated = notes.map((n) =>
-        n._id === selectedNote._id ? res.data : n
-      );
+      const updated = notes.map((n) => (n._id === selectedNote._id ? res.data : n));
       setNotes(updated);
       setFilteredNotes(updated);
       setIsEditing(false);
@@ -154,7 +153,6 @@ const Dashboard = () => {
 
   async function handleDeleteNote(id: string) {
     if (!window.confirm("Are you sure you want to delete this note?")) return;
-
     try {
       await axiosInstance.delete(`/notes/${id}`);
       cancelReminder(id);
@@ -168,6 +166,7 @@ const Dashboard = () => {
     }
   }
 
+  // ✅ Search filter
   useEffect(() => {
     if (!searchTerm.trim()) {
       setFilteredNotes(notes);
@@ -181,11 +180,13 @@ const Dashboard = () => {
     setFilteredNotes(filtered);
   }, [searchTerm, notes]);
 
+  // ✅ Logout
   function handleLogout() {
     localStorage.removeItem("token");
     navigate("/login");
   }
 
+  // ✅ Notification
   function showLocalNotification(title: string, body: string) {
     if (Notification.permission === "granted" && "serviceWorker" in navigator) {
       navigator.serviceWorker.ready.then((reg) => {
@@ -205,6 +206,7 @@ const Dashboard = () => {
     showLocalNotification(title, body);
   };
 
+  // ✅ JSX
   return (
     <div className="dashboard-container">
       {/* Header */}
