@@ -27,7 +27,7 @@ const Login = () => {
     setLoading(true); // 🟢 Start loading state
 
     try {
-      const res = await axios.post("https://backend-noteap.onrender.com", formData);
+      const res = await axios.post("https://backend-noteap.onrender.com/api/auth/login", formData);
 
       // Save token
       // localStorage.setItem("token", res.data.token);

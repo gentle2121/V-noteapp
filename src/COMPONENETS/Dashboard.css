@@ -300,3 +300,29 @@
     transform: scale(1);
   }
 }
+
+
+
+
+
+
+
+
+
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.btn.small {
+  padding: 6px 10px;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.btn.danger {
+  background-color: #e74c3c;
+  color: white;
+}

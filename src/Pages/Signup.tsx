@@ -45,7 +45,7 @@ const Signup = () => {
 
     try {
       // ✅ Send phone number to backend
-      const res = await fetch("https://backend-noteap.onrender.com", {
+      const res = await fetch("https://backend-noteap.onrender.com/api/users/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

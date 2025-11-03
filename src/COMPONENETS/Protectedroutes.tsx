@@ -18,7 +18,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ element }) => {
       }
 
       try {
-        await axios.get("https://backend-noteap.onrender.com", {
+        await axios.get("https://backend-noteap.onrender.com/api/auth/profile", {
           headers: { Authorization: `Bearer ${token}` },
         });
         setIsAuthenticated(true);

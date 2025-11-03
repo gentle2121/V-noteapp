@@ -27,9 +27,10 @@ const Profile = () => {
     const fetchProfile = async () => {
       try {
         const res = await fetch(
-          `https://backend-noteap.onrender.com?email=${email}`
+          `https://backend-noteap.onrender.com/api/profile/profile?email=${email}`
         );
         const data = await res.json();
+
         if (data.success) {
           setProfile(data.user);
         } else {
@@ -67,11 +68,12 @@ const Profile = () => {
     setLoading(true);
 
     try {
-      const res = await fetch("https://backend-noteap.onrender.com", {
+      const res = await fetch("https://backend-noteap.onrender.com/api/profile/profile", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(profile),
       });
+
       const data = await res.json();
       if (data.success) {
         setMsg("Profile saved successfully!");
