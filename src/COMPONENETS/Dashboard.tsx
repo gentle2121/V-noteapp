@@ -96,7 +96,7 @@ async function fetchNotes() {
       remind: note.remind,
     }));
 
-    rehydrateReminders(formattedNotes, (id, title, body) =>
+    rehydrateReminders(formattedNotes, (_id, title, body) =>
       showLocalNotification(title, body)
     );
 
