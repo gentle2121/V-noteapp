@@ -326,3 +326,29 @@
   background-color: #e74c3c;
   color: white;
 }
+
+
+
+
+.header-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.profile-btn {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.profile-btn:hover {
+  background-color: #0056b3;
+}

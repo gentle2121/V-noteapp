@@ -114,3 +114,20 @@
 .navbar-logo-link:hover {
   opacity: 0.8;
 }
+
+
+
+
+
+.logout-btn {
+  background: #ff5252;
+  border: none;
+  color: white;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.logout-btn:hover {
+  background: #e64545;
+}

@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+                     import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { Plus, Search, LogOut, User } from "lucide-react";
+import { Plus, Search, User } from "lucide-react";
 import "./Dashboard.css";
 import {
   scheduleReminder,
@@ -20,15 +20,15 @@ interface Note {
   remind?: boolean;
 }
 
-interface UserType {
+interface User {
   name?: string;
   email?: string;
 }
 
-const API_BASE_URL = "https://backend-noteap.onrender.com/api";
+const API_BASE_URL ="https://backend-noteap.onrender.com/api";
 
 const Dashboard = () => {
-  const [user, setUser] = useState<UserType | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [notes, setNotes] = useState<Note[]>([]);
   const [filteredNotes, setFilteredNotes] = useState<Note[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -95,7 +95,7 @@ const Dashboard = () => {
     }
   }
 
-  // ✅ Add new note
+  // ✅ Add note
   async function handleAddNote(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!newNote.title.trim() || !newNote.content.trim()) return;
@@ -127,7 +127,7 @@ const Dashboard = () => {
     }
   }
 
-  // ✅ Edit existing note
+  // ✅ Edit note
   async function handleEditNote() {
     if (!selectedNote) return;
     if (!selectedNote.title.trim() || !selectedNote.content.trim()) return;
@@ -196,11 +196,6 @@ const Dashboard = () => {
     navigate("/login");
   }
 
-  // ✅ Navigate to Edit Profile
-  function handleEditProfile() {
-    navigate("/profile");
-  }
-
   // ✅ Notifications
   function showLocalNotification(title: string, body: string) {
     if (Notification.permission === "granted" && "serviceWorker" in navigator) {
@@ -208,7 +203,7 @@ const Dashboard = () => {
         reg.showNotification(title, {
           body,
           tag: "noteapp-reminder",
-          requireInteraction: true,
+          requireInteraction: true, // ✅ valid property
         });
       });
     } else {
@@ -227,32 +222,30 @@ const Dashboard = () => {
   return (
     <div className="dashboard-container">
       <header className="dashboard-header">
-        <div className="header-left">
-          <h2>Welcome back, {user ? user.name || user.email : "User"} 👋</h2>
-        </div>
-
-        <div className="header-right">
-          <button className="btn small" onClick={handleEditProfile}>
+        <h2>Welcome back, {user ? user.name || user.email : "User"} 👋</h2>
+ {/* 🟢 Add Edit Profile Button */}
+        <div className="header-actions">
+          <button
+            className="btn profile-btn"
+            onClick={() => navigate("/profile")}
+          >
             <User size={18} /> Edit Profile
           </button>
-          <button className="btn small danger" onClick={handleLogout}>
-            <LogOut size={18} /> Logout
-          </button>
+        </div>
 
-          <div
-            className={`search-bar ${searchTerm || isSearchOpen ? "open" : ""}`}
-          >
-            <Search
-              className="search-icon"
-              onClick={() => setIsSearchOpen(!isSearchOpen)}
-            />
-            <input
-              type="text"
-              placeholder="Search your notes..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
+        <div
+          className={`search-bar ${searchTerm || isSearchOpen ? "open" : ""}`}
+        >
+          <Search
+            className="search-icon"
+            onClick={() => setIsSearchOpen(!isSearchOpen)}
+          />
+          <input
+            type="text"
+            placeholder="Search your notes..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
         </div>
       </header>
 
@@ -295,6 +288,159 @@ const Dashboard = () => {
             ))
         )}
       </div>
+
+      {/* View/Edit Modal */}
+      {selectedNote && (
+        <div className="modal-overlay" onClick={() => setSelectedNote(null)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            {!isEditing ? (
+              <>
+                <h3>{selectedNote.title}</h3>
+                <p>{selectedNote.content}</p>
+                {selectedNote.eventDate && (
+                  <p className="note-date">
+                    Event Date:{" "}
+                    {new Date(selectedNote.eventDate).toLocaleString()}
+                  </p>
+                )}
+                {selectedNote.remind && <p>🔔 Reminder Enabled</p>}
+                <div className="modal-actions">
+                  <button
+                    className="btn primary"
+                    onClick={() => setIsEditing(true)}
+                  >
+                    Edit
+                  </button>
+                  <button
+                    className="btn danger"
+                    onClick={() => handleDeleteNote(selectedNote._id)}
+                  >
+                    Delete
+                  </button>
+                  <button
+                    className="btn"
+                    onClick={() => setSelectedNote(null)}
+                  >
+                    Close
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <h3>Edit Note</h3>
+                <input
+                  type="text"
+                  value={selectedNote.title}
+                  onChange={(e) =>
+                    setSelectedNote({
+                      ...selectedNote,
+                      title: e.target.value,
+                    })
+                  }
+                />
+                <textarea
+                  value={selectedNote.content}
+                  onChange={(e) =>
+                    setSelectedNote({
+                      ...selectedNote,
+                      content: e.target.value,
+                    })
+                  }
+                />
+                <label>Event Date</label>
+                <input
+                  type="datetime-local"
+                  value={
+                    selectedNote.eventDate
+                      ? selectedNote.eventDate.slice(0, 16)
+                      : ""
+                  }
+                  onChange={(e) =>
+                    setSelectedNote({
+                      ...selectedNote,
+                      eventDate: e.target.value,
+                    })
+                  }
+                />
+                <label className="remind-row">
+                  <input
+                    type="checkbox"
+                    checked={!!selectedNote.remind}
+                    onChange={(e) =>
+                      setSelectedNote({
+                        ...selectedNote,
+                        remind: e.target.checked,
+                      })
+                    }
+                  />
+                  &nbsp;Remind me at event time
+                </label>
+                <div className="modal-actions">
+                  <button
+                    className="btn primary"
+                    onClick={handleEditNote}
+                    disabled={loading}
+                  >
+                    {loading ? "Saving..." : "Save Changes"}
+                  </button>
+                  <button className="btn" onClick={() => setIsEditing(false)}>
+                    Cancel
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Add Note Modal */}
+      {showModal && (
+        <div className="modal-overlay" onClick={() => setShowModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <h3>Create New Note</h3>
+            <form onSubmit={handleAddNote}>
+              <input
+                type="text"
+                placeholder="Title"
+                value={newNote.title}
+                onChange={(e) =>
+                  setNewNote({ ...newNote, title: e.target.value })
+                }
+                required
+              />
+              <textarea
+                placeholder="Write your note..."
+                value={newNote.content}
+                onChange={(e) =>
+                  setNewNote({ ...newNote, content: e.target.value })
+                }
+                required
+              />
+              <label className="small">Event Date (optional)</label>
+              <input
+                type="datetime-local"
+                value={newNote.eventDate || ""}
+                onChange={(e) =>
+                  setNewNote({ ...newNote, eventDate: e.target.value })
+                }
+              />
+              <label className="remind-row">
+                <input
+                  type="checkbox"
+                  checked={!!newNote.remind}
+                  onChange={(e) =>
+                    setNewNote({ ...newNote, remind: e.target.checked })
+                  }
+                />
+                &nbsp;Remind me at event time
+              </label>
+              <button type="submit" className="btn primary" disabled={loading}>
+                {loading ? "Saving..." : "Save Note"}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Floating Add Button */}
       <button className="floating-btn" onClick={() => setShowModal(true)}>
