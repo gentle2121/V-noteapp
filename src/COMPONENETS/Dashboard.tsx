@@ -77,9 +77,7 @@ const Dashboard = () => {
     }
   }
 
-  // ✅ Fetch notes
-  async function fetchNotes() {
-    try {
+  
      // ✅ Fetch notes
 async function fetchNotes() {
   try {
