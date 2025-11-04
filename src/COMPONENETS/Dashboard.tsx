@@ -102,12 +102,15 @@ async function fetchNotes() {
       showLocalNotification(title, body)
     );
 
-  } catch (err) {
-    console.error("❌ Notes fetch failed", err);
-  } finally {
-    setLoading(false);
-  }
-}  // ✅ <---- THIS was missing
+  
+
+    } catch (err) {
+      console.error("❌ Notes fetch failed", err);
+    } finally {
+      setLoading(false);
+    }
+  } // ✅ closes fetchNotes function properly
+
 
 
 
