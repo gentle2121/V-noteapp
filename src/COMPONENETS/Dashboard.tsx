@@ -80,20 +80,36 @@ const Dashboard = () => {
   // ✅ Fetch notes
   async function fetchNotes() {
     try {
-      setLoading(true);
-      const res = await axiosInstance.get("/notes");
-      const data: Note[] = res.data || [];
-      setNotes(data);
-      setFilteredNotes(data);
-      rehydrateReminders(data, (id, title, body) =>
-        showLocalNotification(title, body)
-      );
-    } catch (err) {
-      console.error("❌ Notes fetch failed", err);
-    } finally {
-      setLoading(false);
-    }
+     // ✅ Fetch notes
+async function fetchNotes() {
+  try {
+    setLoading(true);
+    const res = await axiosInstance.get("/notes");
+    const data: Note[] = res.data || [];
+    setNotes(data);
+    setFilteredNotes(data);
+
+    // ✅ Fix: Map _id → id to match rehydrateReminders expected structure
+    const formattedNotes = data.map(note => ({
+      id: note._id,
+      title: note.title,
+      content: note.content,
+      eventDate: note.eventDate,
+      remind: note.remind,
+    }));
+
+    rehydrateReminders(formattedNotes, (id, title, body) =>
+      showLocalNotification(title, body)
+    );
+
+  } catch (err) {
+    console.error("❌ Notes fetch failed", err);
+  } finally {
+    setLoading(false);
   }
+}  // ✅ <---- THIS was missing
+
+
 
   // ✅ Add note
   async function handleAddNote(e: React.FormEvent<HTMLFormElement>) {
